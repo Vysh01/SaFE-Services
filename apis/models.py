@@ -6,6 +6,9 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
+from django.db.models.signals import post_save
 
 
 class ContactsTbl(models.Model):
@@ -21,9 +24,10 @@ class ContactsTbl(models.Model):
     email = models.CharField(max_length=200, blank=True, null=True)
     contact_id = models.AutoField(primary_key=True)
 
-    class Meta:
-        managed = False
-        db_table = 'contacts_tbl'
+
+class Meta:
+    managed = False
+    db_table = 'contacts_tbl'
 
 
 class CountriesTbl(models.Model):
@@ -145,8 +149,8 @@ class QuestionsTbl(models.Model):
 
 
 class ResponseTbl(models.Model):
-    migrant = models.ForeignKey(MigrantTbl, models.DO_NOTHING, primary_key=True)
-    parent = models.ForeignKey('UserTbl', models.DO_NOTHING)
+    id = models.IntegerField(primary_key=True)
+    user = models.ForeignKey('UserTbl', models.DO_NOTHING)
     question = models.ForeignKey(QuestionsTbl, models.DO_NOTHING)
     response = models.CharField(max_length=500, blank=True, null=True)
     response_variable = models.CharField(max_length=50, blank=True, null=True)
@@ -158,7 +162,7 @@ class ResponseTbl(models.Model):
     class Meta:
         managed = False
         db_table = 'response_tbl'
-        unique_together = (('migrant', 'question'),)
+        unique_together = (('user', 'question'),)
 
 
 class TilesTbl(models.Model):
@@ -185,9 +189,17 @@ class UserTbl(models.Model):
     user_img = models.TextField(blank=True, null=True)
     percent_comp = models.FloatField(blank=True, null=True)
     current_country = models.CharField(max_length=45, blank=True, null=True)
+    registered_country = models.CharField(max_length=50, blank=True, null=True)
     last_active = models.CharField(max_length=45, blank=True, null=True)
     parent_id = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'user_tbl'
+
+
+# This receiver handles token creation immediately a new user is created.
+@receiver(post_save, sender=UserTbl)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)

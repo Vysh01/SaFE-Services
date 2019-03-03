@@ -1,0 +1,4 @@
+1. ResponseTbl
+    - migrant_id column removed
+    - user column added
+    - id column added as primary key
