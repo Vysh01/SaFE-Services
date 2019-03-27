@@ -4,6 +4,7 @@ from django.shortcuts import render
 # Create your views here.
 from rest_framework import status
 from rest_framework.generics import ListAPIView
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -33,11 +34,13 @@ class GetReportGen(APIView):
 class GetAllMigrants(ListAPIView):
     serializer_class = UsersSerializer
     queryset = UserTbl.objects.filter(user_type='migrant')
+    pagination_class = LimitOffsetPagination
 
 
 class GetAllHelpers(ListAPIView):
     serializer_class = UsersSerializer
     queryset = UserTbl.objects.filter(user_type='helper')
+    pagination_class = LimitOffsetPagination
 
 
 # Getting User Responses
@@ -63,7 +66,6 @@ class GetRedflagQuestions(ListAPIView):
             'tiles_tbl_tile')
 
 
-# Get Migrants By Percent
 class GetRedflagUsers(ListAPIView):
     serializer_class = TestSerializer
 
