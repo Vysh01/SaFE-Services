@@ -91,3 +91,12 @@ class GetUsersByCountry(ListAPIView):
         current = self.request.GET['current']
         return ResponseTbl.objects.filter(response_variable='mg_destination', response__contains=destination,
                                           user__current_country__contains=current)
+
+
+# Searching by Name or Number
+class GetUserByQuery(ListAPIView):
+    serializer_class = UsersSerializer
+
+    def get_queryset(self):
+        return UserTbl.objects.filter(
+            Q(user_name__icontains=self.request.GET['query']) | Q(user_phone__icontains=self.request.GET['query']))

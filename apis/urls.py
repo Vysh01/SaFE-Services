@@ -11,6 +11,7 @@ urlpatterns = [
     path('getredflagquestions/', GetRedflagQuestions.as_view()),
     re_path(r'^getresponses/(?P<migrant>\d+)$', GetUserResponses.as_view()),
     re_path(r'^getredflagusers/(?P<question>\d+)$', GetRedflagUsers.as_view()),
+    re_path(r'^search/$', GetUserByQuery.as_view()),
     re_path(r'^getusersbypercent/$', GetUsersByPercent.as_view()),
     re_path(r'^getusersbycountry/$', GetUsersByCountry.as_view()),
 ]
