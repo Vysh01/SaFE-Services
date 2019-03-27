@@ -11,7 +11,7 @@ class UsersSerializer(serializers.ModelSerializer):
 
 class ResponseSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ['question', 'question_step', 'response', 'is_error', 'tile_id', 'question_query', 'response_time']
+        fields = ['question', 'response', 'is_error', 'tile_id', 'question_query', 'response_time']
         model = ResponseTbl
 
 

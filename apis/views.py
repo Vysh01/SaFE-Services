@@ -47,13 +47,16 @@ class GetAllHelpers(ListAPIView):
 class GetUserResponses(ListAPIView):
     serializer_class = ResponseSerializer
 
-    def get_queryset(self):
-        return ResponseTbl.objects.annotate(question_step=F('question__question_step')).values('question', 'response',
-                                                                                               'is_error',
-                                                                                               'tile_id',
-                                                                                               'question_query',
-                                                                                               'response_time').filter(
-            user=self.kwargs['migrant']).order_by('tile_id')
+    def get(self, request):
+        queryset = ResponseTbl.objects.annotate(question_title=F('question__question_step')).values('question',
+                                                                                                    'question_title',
+                                                                                                    'response',
+                                                                                                    'is_error',
+                                                                                                    'tile_id',
+                                                                                                    'question_query',
+                                                                                                    'response_time').filter(
+            user_id=self.request.GET['migrant']).order_by('tile_id')
+        return Response({'data': queryset})
 
 
 # Get Redflags
