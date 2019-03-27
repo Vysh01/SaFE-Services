@@ -32,12 +32,12 @@ class GetReportGen(APIView):
 
 class GetAllMigrants(ListAPIView):
     serializer_class = UsersSerializer
-    queryset = UserTbl.objects.filter(user_type=1)
+    queryset = UserTbl.objects.filter(user_type='migrant')
 
 
 class GetAllHelpers(ListAPIView):
     serializer_class = UsersSerializer
-    queryset = UserTbl.objects.filter(user_type=0)
+    queryset = UserTbl.objects.filter(user_type='helper')
 
 
 # Getting User Responses
