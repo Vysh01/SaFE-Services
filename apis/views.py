@@ -41,13 +41,20 @@ class GetQueries(ListAPIView):
     serializer_class = ResponseSerializer
 
     def get(self, request, *args, **kwargs):
-        queryset = ResponseTbl.objects.annotate(question_title=F('question__question_step')).values('question_title',
-                                                                                                    'response',
-                                                                                                    'is_error',
-                                                                                                    'question_query',
-                                                                                                    'response_time').filter(
-            user_id=self.kwargs['migrant']).exclude(question_query__exact='').order_by('tile_id')
-        return Response({'data': queryset})
+        mig_list = ResponseTbl.objects.exclude(question_query__exact='').values('user_id', 'user__user_name').annotate(
+            Count('user_id'))
+        all_data = {}
+        for mig in mig_list:
+            queryset = ResponseTbl.objects.annotate(question_title=F('question__question_step')).values(
+                'question_title',
+                'response',
+                'is_error',
+                'user__user_id',
+                'question_query',
+                'response_time').filter(
+                user_id=mig['user_id']).exclude(question_query__exact='').order_by('tile_id')
+            all_data[mig['user__user_name']] = queryset
+        return Response({'data': all_data})
 
 
 class GetAllHelpers(ListAPIView):
