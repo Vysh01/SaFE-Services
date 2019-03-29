@@ -37,6 +37,25 @@ class GetAllMigrants(ListAPIView):
     pagination_class = LimitOffsetPagination
 
 
+class GetQueries(ListAPIView):
+    serializer_class = ResponseSerializer
+
+    def get(self, request, *args, **kwargs):
+        queryset = ResponseTbl.objects.annotate(question_title=F('question__question_step')).values('question_title',
+                                                                                                    'response',
+                                                                                                    'is_error',
+                                                                                                    'question_query',
+                                                                                                    'response_time').filter(
+            user_id=self.kwargs['migrant']).exclude(question_query__exact='').order_by('tile_id')
+        return Response({'data': queryset})
+
+
+class GetAllHelpers(ListAPIView):
+    serializer_class = UsersSerializer
+    queryset = UserTbl.objects.filter(user_type='helper')
+    pagination_class = LimitOffsetPagination
+
+
 class GetAllHelpers(ListAPIView):
     serializer_class = UsersSerializer
     queryset = UserTbl.objects.filter(user_type='helper')
