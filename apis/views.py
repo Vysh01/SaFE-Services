@@ -53,9 +53,22 @@ class GetUserResponses(ListAPIView):
                                                                                                     'response',
                                                                                                     'is_error',
                                                                                                     'tile_id',
+                                                                                                    'question__response_type',
+                                                                                                    'tile__tile_title',
                                                                                                     'question_query',
                                                                                                     'response_time').filter(
             user_id=self.request.GET['migrant']).order_by('tile_id')
+        for index, dict in enumerate(queryset):
+            if dict['question__response_type'] == 0:
+                queryset[index]['response'] = ''
+            elif dict['response'] == 'true':
+                options = OptionsTbl.objects.filter(questions_tbl_question__question_id=dict['question']).values(
+                    'option_text')
+                queryset[index]['response'] = options[0]['option_text']
+            elif dict['response'] == 'false':
+                options = OptionsTbl.objects.filter(questions_tbl_question__question_id=dict['question']).values(
+                    'option_text')
+                queryset[index]['response'] = options[1]['option_text']
         return Response({'data': queryset})
 
 

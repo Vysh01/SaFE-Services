@@ -155,7 +155,7 @@ class ResponseTbl(models.Model):
     response = models.CharField(max_length=500, blank=True, null=True)
     response_variable = models.CharField(max_length=50, blank=True, null=True)
     is_error = models.CharField(max_length=50, blank=True, null=True)
-    tile_id = models.IntegerField(blank=True, null=True)
+    tile = models.ForeignKey('TilesTbl', models.DO_NOTHING)
     question_query = models.CharField(max_length=2000, blank=True, null=True)
     response_time = models.CharField(max_length=45, blank=True, null=True)
 
