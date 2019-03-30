@@ -41,7 +41,6 @@ class GetQueries(ListAPIView):
     serializer_class = ResponseSerializer
 
     def get(self, request, *args, **kwargs):
-
         mig_list = ResponseTbl.objects.exclude(question_query__exact='').values('user_id').annotate(
             user_name=F('user__user_name'), user_sex=F('user__user_sex'), user_phone=F('user__user_phone'),
             user_age=F('user__user_age'), percent_comp=F('user__percent_comp'), user_type=F('user__user_type'),
@@ -118,8 +117,14 @@ class GetRedflagQuestions(ListAPIView):
 class GetRedflagUsers(ListAPIView):
     serializer_class = TestSerializer
 
-    def get_queryset(self):
-        return ResponseTbl.objects.filter(question_id=self.kwargs['question']).values('user__user_name')
+    def get(self, request, *args, **kwargs):
+        queryset = ResponseTbl.objects.filter(question_id=self.kwargs['question']).values('user_id').annotate(
+            user_name=F('user__user_name'), user_sex=F('user__user_sex'), user_phone=F('user__user_phone'),
+            user_age=F('user__user_age'), percent_comp=F('user__percent_comp'), user_type=F('user__user_type'),
+            current_country=F('user__current_country'), registered_country=F('user__registered_country'),
+            last_active=F('user__last_active'), parent_id=F('user__parent_id'),
+            counts=Count('user_id'))
+        return Response({'data': queryset})
 
 
 # Get Migrants By Percent
