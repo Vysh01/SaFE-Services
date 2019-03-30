@@ -41,10 +41,27 @@ class GetQueries(ListAPIView):
     serializer_class = ResponseSerializer
 
     def get(self, request, *args, **kwargs):
-        mig_list = ResponseTbl.objects.exclude(question_query__exact='').values('user_id', 'user__user_name',
-                                                                                'user__user_age', 'user__user_sex',
-                                                                                'user__user_phone').annotate(
-            Count('user_id'))
+        # {
+        #     "user_id": 246,
+        #     "user_name": "Vysh2",
+        #     "user_phone": "4444444444",
+        #     "user_sex": "male",
+        #     "fb_id": null,
+        #     "user_age": 25,
+        #     "user_type": "migrant",
+        #     "percent_comp": 0,
+        #     "current_country": null,
+        #     "registered_country": null,
+        #     "last_active": null,
+        #     "parent_id": 246
+        # },
+
+        mig_list = ResponseTbl.objects.exclude(question_query__exact='').values('user_id').annotate(
+            user_name=F('user__user_name'), user_sex=F('user__user_age'), user_phone=F('user__user_phone'),
+            user_age=F('user__user_age'), percent_comp=F('user__percent_comp'), user_type=F('user__user_type'),
+            current_country=F('user__current_country'), registered_country=F('user__registered_country'),
+            last_active=F('user__last_active'), parent_id=F('user__parent_id'),
+            counts=Count('user_id'))
         all_data = []
         for mig in mig_list:
             mig_dict = {}
