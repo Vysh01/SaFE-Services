@@ -140,28 +140,25 @@ class GetUsersByPercent(ListAPIView):
 class GetUsersByCountry(ListAPIView):
     serializer_class = UsersSerializer
 
-    def get(self, request):
+    def get_queryset(self):
         destination = self.request.GET['destination']
         current = self.request.GET['current']
         if current == 'any':
-            queryset = ResponseTbl.objects.filter(response_variable='mg_destination',
-                                                  response__contains=destination).values('user_id').annotate(
+            return ResponseTbl.objects.filter(response_variable='mg_destination',
+                                              response__contains=destination).values('user_id').annotate(
                 user_name=F('user__user_name'), user_sex=F('user__user_sex'), user_phone=F('user__user_phone'),
                 user_age=F('user__user_age'), percent_comp=F('user__percent_comp'), user_type=F('user__user_type'),
                 current_country=F('user__current_country'), registered_country=F('user__registered_country'),
                 last_active=F('user__last_active'), parent_id=F('user__parent_id'))
-            return Response({'data': queryset})
         elif destination == 'any':
-            queryset = ResponseTbl.objects.filter(user__current_country__contains=current).values('user_id').annotate(
+            return ResponseTbl.objects.filter(user__current_country__contains=current).values('user_id').annotate(
                 user_name=F('user__user_name'), user_sex=F('user__user_sex'), user_phone=F('user__user_phone'),
                 user_age=F('user__user_age'), percent_comp=F('user__percent_comp'), user_type=F('user__user_type'),
                 current_country=F('user__current_country'), registered_country=F('user__registered_country'),
                 last_active=F('user__last_active'), parent_id=F('user__parent_id'))
-            return Response({'data': queryset})
         else:
-            queryset = ResponseTbl.objects.filter(response_variable='mg_destination', response__contains=destination,
-                                                  user__current_country__contains=current)
-            return Response({'data': queryset})
+            return ResponseTbl.objects.filter(response_variable='mg_destination', response__contains=destination,
+                                              user__current_country__contains=current)
 
 
 # Searching by Name or Number
