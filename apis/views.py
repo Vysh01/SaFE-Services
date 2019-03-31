@@ -23,7 +23,8 @@ class GetReportGen(APIView):
         location_group = detail_query_set.values('current_country').annotate(count=Count('current_country'))
         percentages = detail_query_set.values('percent_comp').annotate(count=Count('percent_comp'))
         reg_dates = detail_query_set.values('percent_comp').annotate(count=Count('percent_comp'))
-        redflags = response_query_set.values('question_id', 'question__question_step').filter(
+        redflags = response_query_set.values('question_id').annotate(
+            question__question_step=F('question__question_step_en')).filter(
             is_error='true').annotate(count=Count('question_id'))
         return Response(
             {'genders': gender_groups, 'ages': age_groups, 'user_types': user_types, 'locations': location_group,
@@ -50,7 +51,7 @@ class GetQueries(ListAPIView):
         all_data = []
         for mig in mig_list:
             mig_dict = {}
-            queryset = ResponseTbl.objects.annotate(question_title=F('question__question_step')).values(
+            queryset = ResponseTbl.objects.annotate(question_title=F('question__question_step_en')).values(
                 'question_title',
                 'response',
                 'is_error',
@@ -80,15 +81,15 @@ class GetUserResponses(ListAPIView):
     serializer_class = ResponseSerializer
 
     def get(self, request):
-        queryset = ResponseTbl.objects.annotate(question_title=F('question__question_step')).values('question',
-                                                                                                    'question_title',
-                                                                                                    'response',
-                                                                                                    'is_error',
-                                                                                                    'tile_id',
-                                                                                                    'question__response_type',
-                                                                                                    'tile__tile_title',
-                                                                                                    'question_query',
-                                                                                                    'response_time').filter(
+        queryset = ResponseTbl.objects.annotate(question_title=F('question__question_step_en')).values('question',
+                                                                                                       'question_title',
+                                                                                                       'response',
+                                                                                                       'is_error',
+                                                                                                       'tile_id',
+                                                                                                       'question__response_type',
+                                                                                                       'tile__tile_title',
+                                                                                                       'question_query',
+                                                                                                       'response_time').filter(
             user_id=self.request.GET['migrant']).order_by('tile_id')
         for index, dict in enumerate(queryset):
             if dict['question__response_type'] == 0:
@@ -109,16 +110,17 @@ class GetRedflagQuestions(ListAPIView):
     serializer_class = QuestionsSerializer
 
     def get_queryset(self):
-        return QuestionsTbl.objects.values('question_id', 'question_step', 'question_description').exclude(
-            Q(question_condition=None) | Q(question_condition='')).order_by(
-            'tiles_tbl_tile')
+        return QuestionsTbl.objects.values('question_id').annotate(question_step=F('question_step_en'),
+                                                                   question_description=F(
+                                                                       'question_description_en')).filter(
+            Q(question_condition__contains='error') | Q(response_type=4)).order_by('tiles_tbl_tile')
 
 
 class GetRedflagUsers(ListAPIView):
     serializer_class = TestSerializer
 
     def get(self, request, *args, **kwargs):
-        queryset = ResponseTbl.objects.filter(question_id=self.kwargs['question']).values('user_id').annotate(
+        queryset = ResponseTbl.objects.filter(question_id=self.kwargs['question'], is_error = 'true ').values('user_id').annotate(
             user_name=F('user__user_name'), user_sex=F('user__user_sex'), user_phone=F('user__user_phone'),
             user_age=F('user__user_age'), percent_comp=F('user__percent_comp'), user_type=F('user__user_type'),
             current_country=F('user__current_country'), registered_country=F('user__registered_country'),
