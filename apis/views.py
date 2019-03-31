@@ -143,6 +143,10 @@ class GetUsersByCountry(ListAPIView):
     def get_queryset(self):
         destination = self.request.GET['destination']
         current = self.request.GET['current']
+        if current == 'any':
+            return ResponseTbl.objects.filter(response_variable='mg_destination', response__contains=destination)
+        elif destination == 'any':
+            return ResponseTbl.objects.filter(user__current_country__contains=destination)
         return ResponseTbl.objects.filter(response_variable='mg_destination', response__contains=destination,
                                           user__current_country__contains=current)
 
