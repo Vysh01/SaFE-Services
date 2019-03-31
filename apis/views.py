@@ -17,11 +17,14 @@ class GetReportGen(APIView):
         detail_query_set = UserTbl.objects.all()
         response_query_set = ResponseTbl.objects.all()
         # age_groups = UsersSerializer(detail_query_set.annotate(age_groups=Count('user_age')).values('age_groups'), many=True)
-        age_groups = detail_query_set.values('user_age').annotate(count=Count('user_age')).order_by('user_age')
-        gender_groups = detail_query_set.values('user_sex').annotate(count=Count('user_sex'))
-        user_types = detail_query_set.values('user_type').annotate(count=Count('user_type'))
+        age_groups = detail_query_set.exclude(user_age__contains=0).values('user_age').annotate(
+            count=Count('user_age')).order_by('user_age')
+        gender_groups = detail_query_set.exclude(user_sex__exact='').values('user_sex').annotate(
+            count=Count('user_sex'))
+        user_types = detail_query_set.exclude(user_type=None).values('user_type').annotate(count=Count('user_type'))
         location_group = detail_query_set.values('current_country').annotate(count=Count('current_country'))
-        percentages = detail_query_set.values('percent_comp').annotate(count=Count('percent_comp'))
+        percentages = detail_query_set.exclude(percent_comp=None).values('percent_comp').annotate(
+            count=Count('percent_comp'))
         reg_dates = detail_query_set.values('percent_comp').annotate(count=Count('percent_comp'))
         redflags = response_query_set.values('question_id').annotate(
             question__question_step=F('question__question_step_en')).filter(
@@ -90,18 +93,21 @@ class GetUserResponses(ListAPIView):
                                                                                                        'tile__tile_title',
                                                                                                        'question_query',
                                                                                                        'response_time').filter(
-            user_id=self.request.GET['migrant']).order_by('tile_id')
+            user_id=self.request.GET['migrant']).exclude(response_variable__contains='percent_comp').order_by('tile_id')
         for index, dict in enumerate(queryset):
-            if dict['question__response_type'] == 0:
-                queryset[index]['response'] = ''
-            elif dict['response'] == 'true':
-                options = OptionsTbl.objects.filter(questions_tbl_question__question_id=dict['question']).values(
-                    'option_text')
-                queryset[index]['response'] = options[0]['option_text']
-            elif dict['response'] == 'false':
-                options = OptionsTbl.objects.filter(questions_tbl_question__question_id=dict['question']).values(
-                    'option_text')
-                queryset[index]['response'] = options[1]['option_text']
+            try:
+                if dict['question__response_type'] == 0:
+                    queryset[index]['response'] = ''
+                elif dict['response'] == 'true':
+                    options = OptionsTbl.objects.filter(questions_tbl_question__question_id=dict['question']).values(
+                        'option_text')
+                    queryset[index]['response'] = options[0]['option_text']
+                elif dict['response'] == 'false':
+                    options = OptionsTbl.objects.filter(questions_tbl_question__question_id=dict['question']).values(
+                        'option_text')
+                    queryset[index]['response'] = options[1]['option_text']
+            except:
+                pass
         return Response({'data': queryset})
 
 
@@ -120,7 +126,8 @@ class GetRedflagUsers(ListAPIView):
     serializer_class = TestSerializer
 
     def get(self, request, *args, **kwargs):
-        queryset = ResponseTbl.objects.filter(question_id=self.kwargs['question'], is_error = 'true').values('user_id').annotate(
+        queryset = ResponseTbl.objects.filter(question_id=self.kwargs['question'], is_error='true').values(
+            'user_id').annotate(
             user_name=F('user__user_name'), user_sex=F('user__user_sex'), user_phone=F('user__user_phone'),
             user_age=F('user__user_age'), percent_comp=F('user__percent_comp'), user_type=F('user__user_type'),
             current_country=F('user__current_country'), registered_country=F('user__registered_country'),
