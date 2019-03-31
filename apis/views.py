@@ -120,7 +120,7 @@ class GetRedflagUsers(ListAPIView):
     serializer_class = TestSerializer
 
     def get(self, request, *args, **kwargs):
-        queryset = ResponseTbl.objects.filter(question_id=self.kwargs['question'], is_error = 'true ').values('user_id').annotate(
+        queryset = ResponseTbl.objects.filter(question_id=self.kwargs['question'], is_error = 'true').values('user_id').annotate(
             user_name=F('user__user_name'), user_sex=F('user__user_sex'), user_phone=F('user__user_phone'),
             user_age=F('user__user_age'), percent_comp=F('user__percent_comp'), user_type=F('user__user_type'),
             current_country=F('user__current_country'), registered_country=F('user__registered_country'),
