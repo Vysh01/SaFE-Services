@@ -55,9 +55,11 @@ class GetQueries(ListAPIView):
         for mig in mig_list:
             mig_dict = {}
             queryset = ResponseTbl.objects.annotate(question_title=F('question__question_step_en')).values(
+                'id',
                 'question_title',
                 'response',
                 'is_error',
+                'query_followback',
                 'question_query',
                 'response_time').filter(
                 user_id=mig['user_id']).exclude(question_query__exact='').order_by('tile_id')
@@ -134,6 +136,16 @@ class GetRedflagUsers(ListAPIView):
             last_active=F('user__last_active'), parent_id=F('user__parent_id'),
             counts=Count('user_id'))
         return Response({'data': queryset})
+
+
+class FollowedQuery(APIView):
+    serializer_class = TestSerializer
+
+    def get(self, request, *args, **kwargs):
+        response = ResponseTbl.objects.get(id=self.kwargs['queryid'])
+        response.query_followback = 'yes'
+        response.save()
+        return Response({'data': 'Status Saved'})
 
 
 # Get Migrants By Percent

@@ -158,6 +158,7 @@ class ResponseTbl(models.Model):
     tile = models.ForeignKey('TilesTbl', models.DO_NOTHING)
     question_query = models.CharField(max_length=2000, blank=True, null=True)
     response_time = models.CharField(max_length=45, blank=True, null=True)
+    query_followback = models.CharField(max_length=10, blank=True, null=True)
 
     class Meta:
         managed = False
