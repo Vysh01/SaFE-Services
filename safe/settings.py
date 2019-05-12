@@ -88,7 +88,7 @@ WSGI_APPLICATION = 'safe.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'safe',
+        'NAME': 'subairoma_db',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',

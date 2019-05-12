@@ -36,9 +36,23 @@ class GetReportGen(APIView):
 
 
 class GetAllMigrants(ListAPIView):
-    serializer_class = UsersSerializer
-    queryset = UserTbl.objects.filter(user_type='migrant')
     pagination_class = LimitOffsetPagination
+
+    def get(self, request):
+        # queryset = ResponseTbl.objects.filter(user__user_type='migrant').annotate(
+        #     registered_country=F('user__registered_country'))
+        users = UserTbl.objects.filter(user_type='migrant')
+        paginator = self.pagination_class()
+        page = paginator.paginate_queryset(users, request)
+        for user in page:
+            registered_country = 'Not Selected'
+            try:
+                registered_country = user.responses.get(response_variable='mg_destination').values('response')
+            except:
+                pass
+            user.registered_country = registered_country
+        serializer = UsersSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 
 class GetQueries(ListAPIView):
