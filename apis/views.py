@@ -47,7 +47,7 @@ class GetAllMigrants(ListAPIView):
         for user in page:
             registered_country = 'Not Selected'
             try:
-                registered_country = user.responses.get(response_variable='mg_destination').values('response')
+                registered_country = user.responses.get(response_variable='mg_destination').response
             except:
                 pass
             user.registered_country = registered_country
