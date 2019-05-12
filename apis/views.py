@@ -48,6 +48,7 @@ class GetAllMigrants(ListAPIView):
             registered_country = 'Not Selected'
             try:
                 registered_country = user.responses.get(response_variable='mg_destination').response
+                registered_country = CountriesTbl.objects.get(country_id=registered_country).country_name_en
             except:
                 pass
             user.registered_country = registered_country
