@@ -1,6 +1,4 @@
 from django.db.models import Count, F, Q
-from django.shortcuts import render
-
 # Create your views here.
 from rest_framework import status
 from rest_framework.generics import ListAPIView
@@ -151,6 +149,37 @@ class GetRedflagUsers(ListAPIView):
             last_active=F('user__last_active'), parent_id=F('user__parent_id'),
             counts=Count('user_id'))
         return Response({'data': queryset})
+
+
+class ExportRedflagUsers(APIView):
+    def get(self, request):
+        queryset = ResponseTbl.objects.filter(is_error='true').values(
+            'user_id', 'question', 'response', 'question_query').annotate(
+            user_name=F('user__user_name'), user_sex=F('user__user_sex'), user_phone=F('user__user_phone'),
+            user_age=F('user__user_age'), percent_comp=F('user__percent_comp'), user_type=F('user__user_type'),
+            current_country=F('user__current_country'), registered_country=F('user__registered_country'),
+            last_active=F('user__last_active'))
+        return render_to_csv_response(queryset)
+
+
+class ExportMigrants(ListAPIView):
+    def get(self, request):
+        # queryset = ResponseTbl.objects.filter(user__user_type='migrant').annotate(
+        #     registered_country=F('user__registered_country'))
+        users = UserTbl.objects.filter(user_type='migrant')
+        return render_to_csv_response(users)
+
+
+class ExportUserQueries(APIView):
+    def get(self, request):
+        exclude_values = [None, '']
+        queryset = ResponseTbl.objects.exclude(question_query__in=exclude_values).values(
+            'user_id', 'question', 'response', 'question_query').annotate(
+            user_name=F('user__user_name'), user_sex=F('user__user_sex'), user_phone=F('user__user_phone'),
+            user_age=F('user__user_age'), percent_comp=F('user__percent_comp'), user_type=F('user__user_type'),
+            current_country=F('user__current_country'), registered_country=F('user__registered_country'),
+            last_active=F('user__last_active'))
+        return render_to_csv_response(queryset)
 
 
 class FollowedQuery(APIView):
