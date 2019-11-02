@@ -171,7 +171,7 @@ class ExportRedflagUsers(APIView):
                    'registered_country']
         today = datetime.today()
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="SaFE-Migrants-{}.csv"'.format(today)
+        response['Content-Disposition'] = 'attachment; filename="SaFE-Migrants-Redflags-{}.csv"'.format(today)
 
         writer = csv.DictWriter(response, fieldnames=headers)
         writer.writeheader()
@@ -216,7 +216,7 @@ class ExportUserQueries(APIView):
                    'registered_country']
         today = datetime.today()
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="SaFE-Migrants-{}.csv"'.format(today)
+        response['Content-Disposition'] = 'attachment; filename="SaFE-Migrants-Queries-{}.csv"'.format(today)
 
         writer = csv.DictWriter(response, fieldnames=headers)
         writer.writeheader()
