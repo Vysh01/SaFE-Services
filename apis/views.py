@@ -1,5 +1,10 @@
+import csv
+from datetime import datetime
+
 from django.db.models import Count, F, Q
 # Create your views here.
+from django.http import HttpResponse
+
 from rest_framework import status
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import LimitOffsetPagination
@@ -154,20 +159,45 @@ class GetRedflagUsers(ListAPIView):
 class ExportRedflagUsers(APIView):
     def get(self, request):
         queryset = ResponseTbl.objects.filter(is_error='true').values(
-            'user_id', 'question', 'response', 'question_query').annotate(
+            'question', 'response', 'question_query').annotate(
             user_name=F('user__user_name'), user_sex=F('user__user_sex'), user_phone=F('user__user_phone'),
-            user_age=F('user__user_age'), percent_comp=F('user__percent_comp'), user_type=F('user__user_type'),
-            current_country=F('user__current_country'), registered_country=F('user__registered_country'),
-            last_active=F('user__last_active'))
-        return render_to_csv_response(queryset)
+            user_age=F('user__user_age'), percent_comp=F('user__percent_comp'),
+            current_country=F('user__current_country'), registered_country=F('user__registered_country'))
+
+        serializer = ExportRedflagMigrantSerializer(queryset, many=True)
+
+        headers = ['question', 'response', 'question_query', 'user_name', 'user_sex', 'user_phone', 'user_age',
+                   'percent_comp', 'current_country',
+                   'registered_country']
+        today = datetime.today()
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="SaFE-Migrants-{}.csv"'.format(today)
+
+        writer = csv.DictWriter(response, fieldnames=headers)
+        writer.writeheader()
+        for row in serializer.data:
+            writer.writerow(row)
+        return response
 
 
 class ExportMigrants(ListAPIView):
     def get(self, request):
-        # queryset = ResponseTbl.objects.filter(user__user_type='migrant').annotate(
-        #     registered_country=F('user__registered_country'))
-        users = UserTbl.objects.filter(user_type='migrant')
-        return render_to_csv_response(users)
+        users = UserTbl.objects.filter(user_type='migrant').values('user_name', 'user_phone', 'user_sex', 'user_age',
+                                                                   'percent_comp', 'current_country',
+                                                                   'registered_country')
+        serializer = ExportMigrantSerializer(users, many=True)
+
+        headers = ['user_name', 'user_phone', 'user_sex', 'user_age', 'percent_comp', 'current_country',
+                   'registered_country']
+        today = datetime.today()
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="SaFE-Migrants-{}.csv"'.format(today)
+
+        writer = csv.DictWriter(response, fieldnames=headers)
+        writer.writeheader()
+        for row in serializer.data:
+            writer.writerow(row)
+        return response
 
 
 class ExportUserQueries(APIView):
@@ -176,10 +206,23 @@ class ExportUserQueries(APIView):
         queryset = ResponseTbl.objects.exclude(question_query__in=exclude_values).values(
             'user_id', 'question', 'response', 'question_query').annotate(
             user_name=F('user__user_name'), user_sex=F('user__user_sex'), user_phone=F('user__user_phone'),
-            user_age=F('user__user_age'), percent_comp=F('user__percent_comp'), user_type=F('user__user_type'),
-            current_country=F('user__current_country'), registered_country=F('user__registered_country'),
-            last_active=F('user__last_active'))
-        return render_to_csv_response(queryset)
+            user_age=F('user__user_age'), percent_comp=F('user__percent_comp'),
+            current_country=F('user__current_country'), registered_country=F('user__registered_country'))
+
+        serializer = ExportRedflagMigrantSerializer(queryset, many=True)
+
+        headers = ['question', 'response', 'question_query', 'user_name', 'user_sex', 'user_phone', 'user_age',
+                   'percent_comp', 'current_country',
+                   'registered_country']
+        today = datetime.today()
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="SaFE-Migrants-{}.csv"'.format(today)
+
+        writer = csv.DictWriter(response, fieldnames=headers)
+        writer.writeheader()
+        for row in serializer.data:
+            writer.writerow(row)
+        return response
 
 
 class FollowedQuery(APIView):
