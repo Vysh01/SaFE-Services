@@ -25,4 +25,25 @@ class TestSerializer(serializers.Serializer):
     class Meta:
         fields = ['user_name']
 
-d
+class ExportMigrantSerializer(serializers.Serializer):
+    user_name = serializers.CharField(max_length=50)
+    user_phone = serializers.CharField(max_length=20)
+    user_age = serializers.IntegerField()
+    user_sex = serializers.CharField(max_length=10)
+    percent_comp = serializers.CharField(max_length=10)
+    current_country = serializers.CharField(max_length=20)
+    registered_country = serializers.CharField(max_length=20)
+
+
+class ExportRedflagMigrantSerializer(serializers.Serializer):
+    question = serializers.CharField(max_length=500)
+    response = serializers.CharField(max_length=500)
+    question_query = serializers.CharField(max_length=500)
+    user_name = serializers.CharField(max_length=50)
+    user_phone = serializers.CharField(max_length=20)
+    user_age = serializers.IntegerField()
+    user_sex = serializers.CharField(max_length=10)
+    percent_comp = serializers.CharField(max_length=10)
+    current_country = serializers.CharField(max_length=20)
+    registered_country = serializers.CharField(max_length=20)
+
