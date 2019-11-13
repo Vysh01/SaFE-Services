@@ -3,6 +3,7 @@ from datetime import datetime
 
 from django.db.models import Count, F, Q
 # Create your views here.
+from django.db.models.functions import Length
 from django.http import HttpResponse
 
 from rest_framework import status
@@ -203,11 +204,18 @@ class ExportMigrants(ListAPIView):
 class ExportUserQueries(APIView):
     def get(self, request):
         exclude_values = [None, '']
-        queryset = ResponseTbl.objects.exclude(question_query__in=exclude_values).values(
-            'user_id', 'question', 'response', 'question_query').annotate(
-            user_name=F('user__user_name'), user_sex=F('user__user_sex'), user_phone=F('user__user_phone'),
-            user_age=F('user__user_age'), percent_comp=F('user__percent_comp'),
-            current_country=F('user__current_country'), registered_country=F('user__registered_country'))
+        queryset = ResponseTbl.objects.values(
+            'user_id', 'question', 'response', 'question_query').annotate(query_len=Length('question_query'),
+                                                                          user_name=F('user__user_name'),
+                                                                          user_sex=F('user__user_sex'),
+                                                                          user_phone=F('user__user_phone'),
+                                                                          user_age=F(
+                                                                              'user__user_age'),
+                                                                          percent_comp=F('user__percent_comp'),
+                                                                          current_country=F('user__current_country'),
+                                                                          registered_country=F(
+                                                                              'user__registered_country')).filter(
+            query_len__gte=5)
 
         serializer = ExportRedflagMigrantSerializer(queryset, many=True)
 
