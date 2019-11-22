@@ -94,12 +94,6 @@ class GetAllHelpers(ListAPIView):
     pagination_class = LimitOffsetPagination
 
 
-class GetAllHelpers(ListAPIView):
-    serializer_class = UsersSerializer
-    queryset = UserTbl.objects.filter(user_type='helper')
-    pagination_class = LimitOffsetPagination
-
-
 # Getting User Responses
 class GetUserResponses(ListAPIView):
     serializer_class = ResponseSerializer
@@ -203,7 +197,6 @@ class ExportMigrants(ListAPIView):
 
 class ExportUserQueries(APIView):
     def get(self, request):
-        exclude_values = [None, '']
         queryset = ResponseTbl.objects.values(
             'user_id', 'question', 'response', 'question_query').annotate(query_len=Length('question_query'),
                                                                           user_name=F('user__user_name'),
