@@ -226,6 +226,36 @@ class ExportUserQueries(APIView):
         return response
 
 
+class ExportMigrantResponses(APIView):
+    def get(self, request):
+        queryset = ResponseTbl.objects.values(
+            'user_id', 'question', 'response', 'question_query').annotate(query_len=Length('question_query'),
+                                                                          user_name=F('user__user_name'),
+                                                                          user_sex=F('user__user_sex'),
+                                                                          user_phone=F('user__user_phone'),
+                                                                          user_age=F(
+                                                                              'user__user_age'),
+                                                                          percent_comp=F('user__percent_comp'),
+                                                                          current_country=F('user__current_country'),
+                                                                          registered_country=F(
+                                                                              'user__registered_country'))
+
+        serializer = ExportRedflagMigrantSerializer(queryset, many=True)
+
+        headers = ['question', 'response', 'question_query', 'user_name', 'user_sex', 'user_phone', 'user_age',
+                   'percent_comp', 'current_country',
+                   'registered_country']
+        today = datetime.today()
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="SaFE-Migrants-Queries-{}.csv"'.format(today)
+
+        writer = csv.DictWriter(response, fieldnames=headers)
+        writer.writeheader()
+        for row in serializer.data:
+            writer.writerow(row)
+        return response
+
+
 class FollowedQuery(APIView):
     serializer_class = TestSerializer
 
