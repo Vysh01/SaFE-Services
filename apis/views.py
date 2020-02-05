@@ -18,7 +18,7 @@ from apis.serializers import *
 
 class GetReportGen(APIView):
     def get(self, request):
-        detail_query_set = UserTbl.objects.all()
+        detail_query_set = UserSafeTbl.objects.filter(user_type='migrant')
         response_query_set = ResponseTbl.objects.all()
         # age_groups = UsersSerializer(detail_query_set.annotate(age_groups=Count('user_age')).values('age_groups'), many=True)
         age_groups = detail_query_set.exclude(user_age__contains=0).values('user_age').annotate(
@@ -45,7 +45,7 @@ class GetAllMigrants(ListAPIView):
     def get(self, request):
         # queryset = ResponseTbl.objects.filter(user__user_type='migrant').annotate(
         #     registered_country=F('user__registered_country'))
-        users = UserTbl.objects.filter(user_type='migrant')
+        users = UserSafeTbl.objects.filter(user_type='migrant')
         paginator = self.pagination_class()
         page = paginator.paginate_queryset(users, request)
         for user in page:
@@ -90,7 +90,7 @@ class GetQueries(ListAPIView):
 
 class GetAllHelpers(ListAPIView):
     serializer_class = UsersSerializer
-    queryset = UserTbl.objects.filter(user_type='helper')
+    queryset = UserSafeTbl.objects.filter(user_type='helper')
     pagination_class = LimitOffsetPagination
 
 
@@ -177,9 +177,10 @@ class ExportRedflagUsers(APIView):
 
 class ExportMigrants(ListAPIView):
     def get(self, request):
-        users = UserTbl.objects.filter(user_type='migrant').values('user_name', 'user_phone', 'user_sex', 'user_age',
-                                                                   'percent_comp', 'current_country',
-                                                                   'registered_country')
+        users = UserSafeTbl.objects.filter(user_type='migrant').values('user_name', 'user_phone', 'user_sex',
+                                                                       'user_age',
+                                                                       'percent_comp', 'current_country',
+                                                                       'registered_country')
         serializer = ExportMigrantSerializer(users, many=True)
 
         headers = ['user_name', 'user_phone', 'user_sex', 'user_age', 'percent_comp', 'current_country',
@@ -271,8 +272,8 @@ class GetUsersByPercent(ListAPIView):
     serializer_class = UsersSerializer
 
     def get_queryset(self):
-        return UserTbl.objects.filter(percent_comp__gte=self.request.GET['percent_min'],
-                                      percent_comp__lte=self.request.GET['percent_max'])
+        return UserSafeTbl.objects.filter(percent_comp__gte=self.request.GET['percent_min'],
+                                          percent_comp__lte=self.request.GET['percent_max'])
 
 
 # Get Users by Dest & Current Country
@@ -305,5 +306,5 @@ class GetUserByQuery(ListAPIView):
     serializer_class = UsersSerializer
 
     def get_queryset(self):
-        return UserTbl.objects.filter(
+        return UserSafeTbl.objects.filter(
             Q(user_name__icontains=self.request.GET['query']) | Q(user_phone__icontains=self.request.GET['query']))

@@ -199,6 +199,28 @@ class UserTbl(models.Model):
         db_table = 'user_tbl'
 
 
+class UserSafeTbl(models.Model):
+    user_id = models.AutoField(primary_key=True)
+    user_name = models.CharField(max_length=200)
+    user_phone = models.CharField(unique=True, max_length=100)
+    user_sex = models.CharField(max_length=100)
+    user_email = models.CharField(max_length=100)
+    social_network = models.CharField(max_length=20)
+    social_id = models.CharField(unique=True, max_length=200, blank=True, null=True)
+    user_age = models.IntegerField()
+    user_type = models.CharField(max_length=20, blank=True, null=True)
+    user_img = models.TextField(blank=True, null=True)
+    percent_comp = models.FloatField(blank=True, null=True)
+    current_country = models.CharField(max_length=45, blank=True, null=True)
+    registered_country = models.CharField(max_length=50, blank=True, null=True)
+    last_active = models.CharField(max_length=45, blank=True, null=True)
+    parent_id = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'user_safe_tbl'
+
+
 # This receiver handles token creation immediately a new user is created.
 @receiver(post_save, sender=UserTbl)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
