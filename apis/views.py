@@ -200,6 +200,30 @@ class ExportMigrants(ListAPIView):
         return response
 
 
+class ExportUnexportedMigrants(ListAPIView):
+    def get(self, request):
+        users = UserSafeTbl.objects.filter(user_type='migrant', exported=1)
+        serializer = ExportMigrantSerializer(users.values('user_name', 'user_phone', 'user_sex',
+                                                          'user_age',
+                                                          'percent_comp', 'current_country',
+                                                          'registered_country'), many=True)
+
+        headers = ['user_name', 'user_phone', 'user_sex', 'user_age', 'percent_comp', 'current_country',
+                   'registered_country']
+        today = datetime.today()
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="SaFE-Migrants-{}.csv"'.format(today)
+
+        writer = csv.DictWriter(response, fieldnames=headers)
+        writer.writeheader()
+        for row in serializer.data:
+            writer.writerow(row)
+        users.update(exported=2)
+        for user in users:
+            user.save()
+        return response
+
+
 class ExportUserQueries(APIView):
     def get(self, request):
         queryset = ResponseTbl.objects.values(

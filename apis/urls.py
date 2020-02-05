@@ -11,6 +11,7 @@ urlpatterns = [
     path('getallhelpers/', GetAllHelpers.as_view()),
     path('getredflagquestions/', GetRedflagQuestions.as_view()),
     path('exportmigrants/', ExportMigrants.as_view()),
+    path('exportunexportedmigrants/', ExportUnexportedMigrants.as_view()),
     path('exportredflaggmigrants/', ExportRedflagUsers.as_view()),
     path('exportmigqueries/', ExportUserQueries.as_view()),
     path('exportmigresponses/', ExportMigrantResponses.as_view()),
