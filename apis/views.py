@@ -177,11 +177,15 @@ class ExportRedflagUsers(APIView):
 
 class ExportMigrants(ListAPIView):
     def get(self, request):
-        users = UserSafeTbl.objects.filter(user_type='migrant').values('user_name', 'user_phone', 'user_sex',
-                                                                       'user_age',
-                                                                       'percent_comp', 'current_country',
-                                                                       'registered_country')
-        serializer = ExportMigrantSerializer(users, many=True)
+        users = UserSafeTbl.objects.filter(user_type='migrant')
+        users.update(exported=2)
+        for user in users:
+            user.save()
+
+        serializer = ExportMigrantSerializer(users.values('user_name', 'user_phone', 'user_sex',
+                                                          'user_age',
+                                                          'percent_comp', 'current_country',
+                                                          'registered_country'), many=True)
 
         headers = ['user_name', 'user_phone', 'user_sex', 'user_age', 'percent_comp', 'current_country',
                    'registered_country']

@@ -215,6 +215,7 @@ class UserSafeTbl(models.Model):
     registered_country = models.CharField(max_length=50, blank=True, null=True)
     last_active = models.CharField(max_length=45, blank=True, null=True)
     parent_id = models.IntegerField(blank=True, null=True)
+    exported = models.IntegerField(blank=True, default=1)
 
     class Meta:
         managed = False
