@@ -150,7 +150,7 @@ class QuestionsTbl(models.Model):
 
 class ResponseTbl(models.Model):
     id = models.IntegerField(primary_key=True)
-    user = models.ForeignKey('UserTbl', models.DO_NOTHING, related_name='responses')
+    user = models.ForeignKey('UserSafeTbl', models.DO_NOTHING, related_name='responses')
     question = models.ForeignKey(QuestionsTbl, models.DO_NOTHING)
     response = models.CharField(max_length=500, blank=True, null=True)
     response_variable = models.CharField(max_length=50, blank=True, null=True)
