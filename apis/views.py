@@ -178,9 +178,11 @@ class ExportRedflagUsers(APIView):
 class ExportMigrants(ListAPIView):
     def get(self, request):
         users = UserSafeTbl.objects.filter(user_type='migrant')
-        users.update(exported=2)
+
         for user in users:
-            user.save()
+            if user.exported is not 1 and user.exported is not 3:
+                user.exported = user.exported + 1
+                user.save()
 
         serializer = ExportMigrantSerializer(users.values('user_name', 'user_phone', 'user_sex',
                                                           'user_age',
@@ -202,10 +204,11 @@ class ExportMigrants(ListAPIView):
 
 class ExportHelpers(ListAPIView):
     def get(self, request):
-        users = UserSafeTbl.objects.exclude(user_type='helper')
-        users.update(exported=2)
+        users = UserSafeTbl.objects.filter(user_type='helper')
         for user in users:
-            user.save()
+            if user.exported is not 2 and user.exported is not 3:
+                user.exported = user.exported + 2
+                user.save()
 
         serializer = ExportHelperSerializer(users.values('user_name', 'user_phone', 'user_email'), many=True)
 
@@ -242,8 +245,9 @@ class ExportUnexportedMigrants(ListAPIView):
         for row in serializer.data:
             writer.writerow(row)
         for user in users:
-            user.exported = user.exported + 1
-            user.save()
+            if user.exported is not 1 and user.exported is not 3:
+                user.exported = user.exported + 1
+                user.save()
         return response
 
 
@@ -265,8 +269,9 @@ class ExportUnexportedHelpers(ListAPIView):
         for row in serializer.data:
             writer.writerow(row)
         for user in users:
-            user.exported = user.exported + 2
-            user.save()
+            if user.exported is not 2 and user.exported is not 3:
+                user.exported = user.exported + 2
+                user.save()
         return response
 
 
