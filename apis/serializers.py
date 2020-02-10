@@ -35,6 +35,11 @@ class ExportMigrantSerializer(serializers.Serializer):
     registered_country = serializers.CharField(max_length=20)
 
 
+class ExportHelperSerializer(serializers.Serializer):
+    user_name = serializers.CharField(max_length=50)
+    user_phone = serializers.CharField(max_length=20)
+    user_email = serializers.CharField(max_length=10)
+
 class ExportRedflagMigrantSerializer(serializers.Serializer):
     question = serializers.CharField(max_length=500)
     response = serializers.CharField(max_length=500)
