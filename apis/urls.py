@@ -16,6 +16,7 @@ urlpatterns = [
     path('exportunexportedhelpers/', ExportUnexportedHelpers.as_view()),
     path('exportredflaggmigrants/', ExportRedflagUsers.as_view()),
     path('exportmigqueries/', ExportUserQueries.as_view()),
+    path('exportunansweredqueries/', ExportUnansweredUserQueries.as_view()),
     path('exportmigresponses/', ExportMigrantResponses.as_view()),
     re_path(r'^getresponses/$', GetUserResponses.as_view()),
     re_path(r'^getredflagusers/(?P<question>\d+)$', GetRedflagUsers.as_view()),
