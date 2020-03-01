@@ -216,6 +216,7 @@ class UserSafeTbl(models.Model):
     last_active = models.CharField(max_length=45, blank=True, null=True)
     parent_id = models.IntegerField(blank=True, null=True)
     exported = models.IntegerField(blank=True, default=1)
+    followed = models.CharField(max_length=5, default='no', blank=True)
 
     class Meta:
         managed = False

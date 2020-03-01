@@ -378,6 +378,16 @@ class FollowedQuery(APIView):
         return Response({'data': 'Status Saved'})
 
 
+class FollowedMigrant(APIView):
+    serializer_class = TestSerializer
+
+    def post(self, request):
+        user = UserSafeTbl.objects.get(user_id=request.data['user_id'])
+        user.followed = request.data['status']
+        user.save()
+        return Response({'data': 'Status Saved'})
+
+
 # Get Migrants By Percent
 class GetUsersByPercent(ListAPIView):
     serializer_class = UsersSerializer

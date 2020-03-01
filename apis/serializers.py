@@ -6,7 +6,7 @@ from apis.models import *
 class UsersSerializer(serializers.ModelSerializer):
     class Meta:
         exclude = ('user_img',)
-        model = UserTbl
+        model = UserSafeTbl
 
 
 class ResponseSerializer(serializers.ModelSerializer):
