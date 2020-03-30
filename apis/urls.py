@@ -22,6 +22,7 @@ urlpatterns = [
     re_path(r'^getredflagusers/(?P<question>\d+)$', GetRedflagUsers.as_view()),
     re_path(r'^followedback/(?P<queryid>\d+)$', FollowedQuery.as_view()),
     path('followedmigrant/', FollowedMigrant.as_view()),
+    path('getallresponses/', GetAllResponses.as_view()),
     re_path(r'^search/$', GetUserByQuery.as_view()),
     re_path(r'^getusersbypercent/$', GetUsersByPercent.as_view()),
     re_path(r'^getusersbycountry/$', GetUsersByCountry.as_view()),
