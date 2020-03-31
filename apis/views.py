@@ -447,26 +447,26 @@ class GetAllResponses(APIView):
             mig_ids = UserSafeTbl.objects.filter(user_type='migrant').values('user_id', 'user_name', 'user_phone',
                                                                              'user_email').order_by('-user_id')[:count]
 
-            question_titles = QuestionsTbl.objects.values('question_id', 'question_step_en')
-            headers = ['name', 'number', 'email']
+        question_titles = QuestionsTbl.objects.values('question_id', 'question_step_en')
+        headers = ['name', 'number', 'email']
+        for question in question_titles:
+            headers.append(question['question_step_en'])
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="Migrant-Responses.csv"'
+
+        writer = csv.DictWriter(response, fieldnames=headers)
+        writer.writeheader()
+        for mig in mig_ids:
+            mig_res = {'name': mig['user_name'], 'number': mig['user_phone'], 'email': mig['user_email']}
             for question in question_titles:
-                headers.append(question['question_step_en'])
-
-            response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="Migrant-Responses.csv"'
-
-            writer = csv.DictWriter(response, fieldnames=headers)
-            writer.writeheader()
-            for mig in mig_ids:
-                mig_res = {'name': mig['user_name'], 'number': mig['user_phone'], 'email': mig['user_email']}
-                for question in question_titles:
-                    curr_response = ResponseTbl.objects.filter(user_id=mig['user_id'],
-                                                               question_id=question['question_id']).values(
-                        'response')[:1]
-                    if len(curr_response) > 0:
-                        mig_res[question['question_step_en']] = curr_response[0]['response']
-                    else:
-                        mig_res[question['question_step_en']] = ''
-                writer.writerow(mig_res)
+                curr_response = ResponseTbl.objects.filter(user_id=mig['user_id'],
+                                                           question_id=question['question_id']).values(
+                    'response')[:1]
+                if len(curr_response) > 0:
+                    mig_res[question['question_step_en']] = curr_response[0]['response']
+                else:
+                    mig_res[question['question_step_en']] = ''
+            writer.writerow(mig_res)
 
         return response
