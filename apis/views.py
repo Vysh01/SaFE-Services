@@ -464,7 +464,13 @@ class GetAllResponses(APIView):
                                                            question_id=question['question_id']).values(
                     'response')[:1]
                 if len(curr_response) > 0:
-                    mig_res[question['question_step_en']] = curr_response[0]['response']
+                    res = curr_response[0]['response']
+                    if res == 'true':
+                        mig_res[question['question_step_en']] = question['question_step_en'] + ' : YES'
+                    elif res == 'false':
+                        mig_res[question['question_step_en']] = question['question_step_en'] + ' : NO'
+                    else:
+                        mig_res[question['question_step_en']] = res
                 else:
                     mig_res[question['question_step_en']] = ''
             writer.writerow(mig_res)
