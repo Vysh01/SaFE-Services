@@ -465,6 +465,16 @@ class GetAllResponses(APIView):
                     'response')[:1]
                 if len(curr_response) > 0:
                     res = curr_response[0]['response']
+                    # Question id is -1 for mg_destination
+
+                    if question['question_id'] == -1:
+                        try:
+                            country = CountriesTbl.objects.get(country_id=res)
+                            country_name = country.country_name_en
+                        except:
+                            country_name = 'Not Selected'
+                        finally:
+                            res = country_name
                     if res == 'true':
                         mig_res[question['question_step_en']] = question['question_step_en'] + ' : YES'
                     elif res == 'false':
